@@ -9,7 +9,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AddressCommandToCategory implements Converter<AddressCommand, Address>{
+public class AddressCommandToAddress implements Converter<AddressCommand, Address>{
 
     @Synchronized
     @Nullable

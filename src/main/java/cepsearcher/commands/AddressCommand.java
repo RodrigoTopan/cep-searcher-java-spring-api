@@ -9,4 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 public class AddressCommand {
     private String id;
+    private String street;
+    private String district;
+    private String city;
+    private String state;
 }

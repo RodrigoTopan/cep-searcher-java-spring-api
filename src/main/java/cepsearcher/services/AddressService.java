@@ -1,7 +1,8 @@
 package cepsearcher.services;
 
-import reactor.core.publisher.Flux;
+import cepsearcher.domain.Address;
 import reactor.core.publisher.Mono;
 
 public interface AddressService {
+    Mono<Address> findByCEP(String cep);
 }
