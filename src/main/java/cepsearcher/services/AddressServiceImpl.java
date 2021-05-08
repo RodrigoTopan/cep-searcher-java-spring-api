@@ -1,29 +1,34 @@
 package cepsearcher.services;
 
-import cepsearcher.converters.AddressCommandToAddress;
-import cepsearcher.converters.AddressToAddressCommand;
-import cepsearcher.domain.Address;
+import cepsearcher.converters.AddressReponseDTOToAddress;
+import cepsearcher.converters.AddressToAddressResponseDTO;
+import cepsearcher.dtos.ViaCEPAddressDTO;
 import cepsearcher.repositories.reactive.AddressReactiveRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import org.springframework.web.client.RestTemplate;
 import reactor.core.publisher.Mono;
 
 @Slf4j
 @Service
 public class AddressServiceImpl implements AddressService {
+    private final RestTemplate restTemplate;
     private final AddressReactiveRepository addressReactiveRepository;
-    private final AddressCommandToAddress addressCommandToAddress;
-    private final AddressToAddressCommand addressToAddressCommand;
+    private final AddressToAddressResponseDTO addressToAddressResponseDTO;
+    private final AddressReponseDTOToAddress addressReponseDTOToAddress;
 
-    public AddressServiceImpl(AddressReactiveRepository addressReactiveRepository, AddressCommandToAddress addressCommandToAddress, AddressToAddressCommand addressToAddressCommand) {
+    public AddressServiceImpl(RestTemplate restTemplate, AddressReactiveRepository addressReactiveRepository, AddressToAddressResponseDTO addressToAddressResponseDTO, AddressReponseDTOToAddress addressReponseDTOToAddress) {
+        this.restTemplate = restTemplate;
         this.addressReactiveRepository = addressReactiveRepository;
-        this.addressCommandToAddress = addressCommandToAddress;
-        this.addressToAddressCommand = addressToAddressCommand;
+        this.addressToAddressResponseDTO = addressToAddressResponseDTO;
+        this.addressReponseDTOToAddress = addressReponseDTOToAddress;
     }
 
     @Override
-    public Mono<Address> findByCEP(String cep) {
-        return addressReactiveRepository.findById(cep);
+    public Mono<ViaCEPAddressDTO> findByCEP(String cep) {
+        ViaCEPAddressDTO viaCEPAddressDTO = restTemplate.getForObject(
+                "https://viacep.com.br/ws/"+ cep +"/json/", ViaCEPAddressDTO.class);
+
+        return Mono.just(viaCEPAddressDTO);
     }
 }

@@ -1,25 +1,24 @@
 package cepsearcher.converters;
 
-
-import cepsearcher.commands.AddressCommand;
-import cepsearcher.domain.Address;
+import cepsearcher.dtos.AddressResponseDTO;
+import cepsearcher.domains.Address;
 import lombok.Synchronized;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AddressCommandToAddress implements Converter<AddressCommand, Address>{
+public class AddressToAddressResponseDTO implements Converter<Address, AddressResponseDTO> {
 
     @Synchronized
     @Nullable
     @Override
-    public Address convert(AddressCommand source) {
+    public AddressResponseDTO convert(Address source) {
         if (source == null) {
             return null;
         }
 
-        final Address address = new Address();
-        return address;
+        final AddressResponseDTO addressResponseDTO = new AddressResponseDTO();
+        return addressResponseDTO;
     }
 }
