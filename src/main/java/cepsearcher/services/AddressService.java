@@ -1,8 +1,8 @@
 package cepsearcher.services;
 
-import cepsearcher.dtos.ViaCEPAddressDTO;
+import cepsearcher.dtos.AddressDTO;
 import reactor.core.publisher.Mono;
 
 public interface AddressService {
-    Mono<ViaCEPAddressDTO> findByCEP(String cep);
+    Mono<AddressDTO> findByCEP(String cep);
 }

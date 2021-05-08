@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 @Getter
 @NoArgsConstructor
-public class AddressResponseDTO {
-    private String id;
+public class AddressDTO {
+    private String cep;
     private String street;
     private String district;
     private String city;

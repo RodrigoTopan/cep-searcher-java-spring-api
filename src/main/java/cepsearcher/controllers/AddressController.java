@@ -1,9 +1,11 @@
 package cepsearcher.controllers;
 
 
-import cepsearcher.dtos.ViaCEPAddressDTO;
+import cepsearcher.dtos.AddressDTO;
+import cepsearcher.exceptions.BadRequestException;
 import cepsearcher.services.AddressService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,8 +21,10 @@ public class AddressController {
         this.addressService = addressService;
     }
 
-    @GetMapping("/api/v1/address/{cep}")
-    Mono<ViaCEPAddressDTO> find(@PathVariable String cep) {
+    @GetMapping("/api/address/{cep}")
+    Mono<AddressDTO> find(@PathVariable String cep) {
+        if(cep.isEmpty() || cep.length() > 8) throw new BadRequestException("CEP inválido");
+
         return this.addressService.findByCEP(cep);
     }
 }

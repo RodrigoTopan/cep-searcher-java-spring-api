@@ -1,0 +1,4 @@
+viacep:
+  api:
+    host: https://viacep.com.br/ws/
+    responseFormat: /json

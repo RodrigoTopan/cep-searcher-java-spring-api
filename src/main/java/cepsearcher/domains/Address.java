@@ -10,8 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class Address {
     @Id
-    private String id;
-
+    private String cep;
     private String street;
     private String district;
     private String city;
