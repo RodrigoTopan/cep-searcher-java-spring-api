@@ -18,10 +18,9 @@
   <summary><h2 style="display: inline-block">Sumário</h2></summary>
   <ol>
     <li><a href="#tech">Tecnologias Utilizadas</a></li>
-   <li><a href="#design-patterns">Padrões e boas práticas adotadas</a></li>
+    <li><a href="#design-pattern"> Padrões e boas práticas adotadas</a></li>
     <li>
       <a href="#getting-started">Getting Started</a>
-      <a href="#design-pattern"> Padrões e boas práticas adotadas</a>
       <ul>
         <li><a href="#docker-installation">Instalação com Docker</a></li>
         <li><a href="#prerequisites">Pre-requisitos</a></li>
