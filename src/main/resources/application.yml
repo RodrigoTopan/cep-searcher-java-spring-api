@@ -2,3 +2,10 @@ viacep:
   api:
     host: https://viacep.com.br/ws/
     responseFormat: /json
+
+spring:
+  data:
+    mongodb:
+      port: 27017
+      host: localhost
+      auto-index-creation: true

@@ -1,17 +1,12 @@
 package cepsearcher.exceptions;
 
-import cepsearcher.exceptions.BadRequestException;
-import cepsearcher.exceptions.InternalServerException;
-import cepsearcher.exceptions.NotFoundException;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
 
 @ControllerAdvice
 public class ExceptionController {
@@ -39,7 +34,7 @@ public class ExceptionController {
 
     @ExceptionHandler(value = Exception.class)
     public ResponseEntity<JsonResponse> handleUnexpectedException(Exception e) {
-        return new ResponseEntity<JsonResponse>(new JsonResponse("Ocorreu um erro inesperado no servidor"), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<JsonResponse>(new JsonResponse(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

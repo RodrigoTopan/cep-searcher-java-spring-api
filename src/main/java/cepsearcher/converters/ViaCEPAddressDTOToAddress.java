@@ -23,8 +23,9 @@ public class ViaCEPAddressDTOToAddress implements Converter<ViaCEPAddressDTO, Ad
         address.setCity(source.getLocalidade());
         address.setDistrict(source.getBairro());
         address.setState(source.getUf());
-        address.setCep(source.getCep());
+        address.setCep(source.getCep().replaceAll("[^a-zA-Z0-9]", ""));
         address.setStreet(source.getLogradouro());
+        address.setId(null);
         return address;
     }
 }
