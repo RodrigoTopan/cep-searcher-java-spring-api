@@ -7,6 +7,7 @@ import cepsearcher.domains.Address;
 import cepsearcher.dtos.AddressDTO;
 import cepsearcher.dtos.ViaCEPAddressDTO;
 import cepsearcher.exceptions.BadRequestException;
+import cepsearcher.exceptions.InternalServerException;
 import cepsearcher.exceptions.NotFoundException;
 import cepsearcher.repositories.imperative.AddressRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,7 +17,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -49,48 +49,53 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDTO findByCEP(String cep) {
-        log.debug("[ADDRESS SERVICE][FIND BY CEP]", cep);
-        String verifiedCEP = this.verifyCEP(cep);
+        log.info("[ADDRESS SERVICE][FIND BY CEP] {}", cep);
+        String verifiedCEP = formatCEP(verifyCEP(cep));
 
         AddressDTO addressResponseDTO = this.findAddressWithDB(verifiedCEP);
         if(addressResponseDTO != null){
+            log.info("[ADDRESS SERVICE][FIND BY CEP] RETURNING FOUND DB ADDRESS");
             return addressResponseDTO;
         }
-        return null;
-        //execute fallback to viacep
-        //return this.findAddressWithWebservice(cep);
+
+        log.info("[ADDRESS SERVICE][FIND BY CEP] EXECUTING FALLBACK TO VIACEP CEP WEBSERVICE");
+        return this.findAddressWithWebService(verifiedCEP);
     }
 
     private String verifyCEP(String cep){
-        String verifiedCEP;
         if(cep.isEmpty() || cep.length() > 8) throw new BadRequestException("CEP inválido");
-        verifiedCEP = cep.replaceAll("[^a-zA-Z0-9]", "");
-        if(cep.length() < 8) {
-            verifiedCEP = String.format("%-" + cep + "s", 8);
-        }
-        return verifiedCEP;
+        return cep;
     }
 
-    private AddressDTO findAddressWithWebservice(String cep) {
-        try {
-            final String viaCepUri = this.viaCepHost + cep + this.viaCepFormat;
-            ViaCEPAddressDTO viaCEPAddressDTO = this.restTemplate.getForObject(viaCepUri, ViaCEPAddressDTO.class);
+    private String formatCEP(String cep){
+        String formattedCEP = cep.replaceAll("[^a-zA-Z0-9]", "").trim();
 
-            if(viaCEPAddressDTO.getCep() == null) throw new NotFoundException("CEP não encontrado");
-
-            Address address = this.viaCEPAddressDTOToAddress.convert(viaCEPAddressDTO);
-
-            //if(this.addressRepository.findByCep(cep) == null){
-                this.addressRepository.save(address);
-            //}
-
-            AddressDTO addressDTO = this.addressToAddressDTO.convert(address);
-            return addressDTO;
-        }catch (HttpStatusCodeException apiError) {
-            if(apiError.getStatusCode() == HttpStatus.BAD_REQUEST && cep.length()  < 8) return this.findByCEP(cep + "0");
+        if(formattedCEP.length() < 8) {
+            formattedCEP = String.format("%-8s", formattedCEP).replace(' ', '0');;
         }
+        log.info("FORMATTED CEP: {}",cep);
+        return formattedCEP;
+    }
 
-        throw new NotFoundException("CEP não encontrado");
+    private AddressDTO findAddressWithWebService(String cep) {
+       try {
+           final String viaCepUri = this.viaCepHost + cep + this.viaCepFormat;
+           ViaCEPAddressDTO viaCEPAddressDTO = this.restTemplate.getForObject(viaCepUri, ViaCEPAddressDTO.class);
+
+           if (viaCEPAddressDTO.getCep() == null) throw new NotFoundException("CEP não encontrado");
+
+           Address address = this.viaCEPAddressDTOToAddress.convert(viaCEPAddressDTO);
+           //save if not exists or update registry
+           this.addressRepository.save(address);
+
+           AddressDTO addressDTO = this.addressToAddressDTO.convert(address);
+           return addressDTO;
+       }catch (HttpStatusCodeException apiError) {
+           if(apiError.getStatusCode() == HttpStatus.BAD_REQUEST) {
+               throw new NotFoundException("CEP não encontrado");
+           }
+           throw new InternalServerException("Ocorreu um erro ao buscar o CEP. Por favor, tente novamente mais tarde!");
+       }
     }
 
     private AddressDTO findAddressWithDB(String cep) {
