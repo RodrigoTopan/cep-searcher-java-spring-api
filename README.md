@@ -18,8 +18,9 @@
   <summary><h2 style="display: inline-block">Sumário</h2></summary>
   <ol>
     <li><a href="#tech">Tecnologias Utilizadas</a></li>
+   <li><a href="#design-patterns">Padrões e boas práticas adotadas</a></li>
     <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#getting-started">Getting Started</a>design-pattern
       <ul>
         <li><a href="#docker-installation">Instalação com Docker</a></li>
         <li><a href="#prerequisites">Pre-requisitos</a></li>
@@ -43,6 +44,25 @@
 * [Spring](https://spring.io/)
 * [MongoDB](https://www.mongodb.com/)
 * [ViaCEP Webservice](https://viacep.com.br/)
+
+
+<div id="design-pattern"></div>
+
+## Padrões e boas práticas adotadas
+
+Essse projeto foi desenvolvido seguindo o padrão de MVC, organizado em (CONTROLLERS, SERVICES, RESPOSITORIES E MODELS). Esse padrão é muito conhecido pelo mercado e acredito 
+que se encaixe perfeitamente em aplicações e microserviços que não possuem grande tendência a crescer.
+Optei por eesse padrão porque acredito que soluções populares e simples garantem a organização do seu projeto
+e que todos da equipe irão entender e conseguir dar manutenção. Soluções complexas que poucos entendem, 
+depois de um tempo tendem a adotar algum antipattern ou perder sua organização, causando bugs. Então sempre fujo de matar baratas com canhões desnecessáriamente.
+
+* DTOs são objetos compartilhados com o exterior, utilizei esses para definir a tipagem do que é externo
+* O controller no caso da utilização do framework spring atua como exposição de rotas e pequenas validaçẽos. Recebe como injeção de dependência seus respectivos services. O controller aciona o service para processamento da regra de negócio.
+* O service é o responsável por tratar as regras de negócio e como elas devem ser implementadas (Ex: o horário de agendamento de um cliente não deve conflitar com o horário de outro cliente). 
+  Recebe como injeção de dependência seus respectivos repositories. O service aciona as funções do repository para persistência de dados.
+* O repository é o responsável por se comunicar com a model e implementar métodos para manipulação dos dados do banco de dados.
+
+
 
 
 
