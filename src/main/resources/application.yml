@@ -6,6 +6,5 @@ viacep:
 spring:
   data:
     mongodb:
-      port: 27017
-      host: localhost
+      uri: mongodb://localhost:27017/test
       auto-index-creation: true
