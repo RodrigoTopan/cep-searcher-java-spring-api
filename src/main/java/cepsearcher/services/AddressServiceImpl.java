@@ -82,7 +82,7 @@ public class AddressServiceImpl implements AddressService {
            final String viaCepUri = this.viaCepHost + cep + this.viaCepFormat;
            ViaCEPAddressDTO viaCEPAddressDTO = this.restTemplate.getForObject(viaCepUri, ViaCEPAddressDTO.class);
 
-           if (viaCEPAddressDTO.getCep() == null) throw new NotFoundException("CEP não encontrado");
+           if (viaCEPAddressDTO == null || viaCEPAddressDTO.getCep() == null) throw new NotFoundException("CEP não encontrado");
 
            Address address = this.viaCEPAddressDTOToAddress.convert(viaCEPAddressDTO);
            //save if not exists or update registry
