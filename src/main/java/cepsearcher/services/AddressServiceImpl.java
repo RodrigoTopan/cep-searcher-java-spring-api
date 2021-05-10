@@ -69,10 +69,6 @@ public class AddressServiceImpl implements AddressService {
 
     private String formatCEP(String cep){
         String formattedCEP = cep.replaceAll("[^a-zA-Z0-9]", "").trim();
-
-        if(formattedCEP.length() < 8) {
-            formattedCEP = String.format("%-8s", formattedCEP).replace(' ', '0');;
-        }
         log.info("FORMATTED CEP: {}",cep);
         return formattedCEP;
     }
@@ -91,10 +87,12 @@ public class AddressServiceImpl implements AddressService {
            AddressDTO addressDTO = this.addressToAddressDTO.convert(address);
            return addressDTO;
        }catch (HttpStatusCodeException apiError) {
-           if(apiError.getStatusCode() == HttpStatus.BAD_REQUEST) {
-               throw new NotFoundException("CEP não encontrado");
+           if(apiError.getStatusCode() == HttpStatus.BAD_REQUEST && cep.length() < 8) {
+               String newCep = cep + "0";
+               log.info("[ADDRESS SERVICE][FIND BY CEP] TRYING SEARCH AGAIN WITH ONE MORE RIGHT ZERO {}", newCep);
+               return this.findByCEP(newCep);
            }
-           throw new InternalServerException("Ocorreu um erro ao buscar o CEP. Por favor, tente novamente mais tarde!");
+           else throw new NotFoundException("CEP não encontrado");
        }
     }
 

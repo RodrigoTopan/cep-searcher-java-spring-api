@@ -125,6 +125,10 @@ Para instalar na sua máquina e rodar a aplicação siga os passos abaixo
 
 5. O projeto por padrão vai rodar na PORTA 8080
 
+6. Exemplo de busca
+   ![demonstração](assets/exemplo-busca-cep.png)
+
+
 7. Se preferir, também disponibilizei na pasta "raiz" do projeto, o arquivo dump do Insomnia com as requisições para você poder importá-lo na sua máquina
 
 
@@ -139,6 +143,10 @@ Para executar os testes automatizados, execute o comando abaixo.
    ```
 
 <div id="contact"></div>
+
+Observação:
+Para atender as regras de negócio definidas no desafio, disponibilizei a branch master.
+Como proposta para uma consulta mais eficiente, disponbilize a branch "feat/improvedPerformance".
 
 ## 🧑‍💼 Contato
 
