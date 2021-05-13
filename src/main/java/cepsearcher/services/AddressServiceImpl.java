@@ -83,31 +83,30 @@ public class AddressServiceImpl implements AddressService {
     private String getNewRetryCEP(String cep){
         String cepWithoutRightZeros = cep.replaceAll("0*$", "").trim();
         Integer cepLength = cepWithoutRightZeros.length();
-        
+
         if(cepLength <= 0) throw new NotFoundException("CEP não encontrado");
-        
+
         String cepWithoutLastDigit = cepWithoutRightZeros.substring(0,cepLength - 1);
 
-        String fullfilledCEP = "";
-
-        if(cepWithoutLastDigit.length() < 8) {
-            //Add right zeros to fill 8 digits
-            fullfilledCEP = String.format("%-8s", cepWithoutLastDigit).replace(' ', '0');;
-        }
+        String fullfilledCEP = this.formatCEP(cepWithoutLastDigit);
 
         log.debug("RETRY CEP FULFILLED: {}", fullfilledCEP);
-        
+
         return fullfilledCEP;
     }
 
     private AddressDTO findAddressWithWebService(String cep) {
        try {
+           if(cep == null || cep.equals("00000000")) throw new NotFoundException("CEP não encontrado");
+
            log.info("[ADDRESS SERVICE][FIND BY CEP] SEARCHING WITH CEP: {}", cep);
+
            final String viaCepUri = this.viaCepHost + cep + this.viaCepFormat;
            ViaCEPAddressDTO viaCEPAddressDTO = this.restTemplate.getForObject(viaCepUri, ViaCEPAddressDTO.class);
 
            // IF CEP NOT FOUND, RETRY WITH NEW FORMAT
-           if (viaCEPAddressDTO == null || viaCEPAddressDTO.getCep() == null) return this.findAddressWithWebService(getNewRetryCEP(cep));
+           if (viaCEPAddressDTO == null || viaCEPAddressDTO.getCep() == null)
+               return this.findAddressWithWebService(getNewRetryCEP(cep));
 
            Address address = this.viaCEPAddressDTOToAddress.convert(viaCEPAddressDTO);
            //save if not exists or update registry
