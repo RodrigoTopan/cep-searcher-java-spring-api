@@ -68,17 +68,46 @@ public class AddressServiceImpl implements AddressService {
     }
 
     private String formatCEP(String cep){
+        //Remove special, whitespaces digits
         String formattedCEP = cep.replaceAll("[^a-zA-Z0-9]", "").trim();
-        log.info("FORMATTED CEP: {}",cep);
+
+        if(formattedCEP.length() < 8) {
+            //Add right zeros to fill 8 digits
+            formattedCEP = String.format("%-8s", formattedCEP).replace(' ', '0');;
+        }
+        log.debug("FORMATTED CEP: {}",cep);
+        
         return formattedCEP;
+    }
+
+    private String getNewRetryCEP(String cep){
+        String cepWithoutRightZeros = cep.replaceAll("0*$", "").trim();
+        Integer cepLength = cepWithoutRightZeros.length();
+        
+        if(cepLength <= 0) throw new NotFoundException("CEP não encontrado");
+        
+        String cepWithoutLastDigit = cepWithoutRightZeros.substring(0,cepLength - 1);
+
+        String fullfilledCEP = "";
+
+        if(cepWithoutLastDigit.length() < 8) {
+            //Add right zeros to fill 8 digits
+            fullfilledCEP = String.format("%-8s", cepWithoutLastDigit).replace(' ', '0');;
+        }
+
+        log.debug("RETRY CEP FULFILLED: {}", fullfilledCEP);
+        
+        return fullfilledCEP;
     }
 
     private AddressDTO findAddressWithWebService(String cep) {
        try {
+           log.info("[ADDRESS SERVICE][FIND BY CEP] SEARCHING WITH CEP: {}", cep);
            final String viaCepUri = this.viaCepHost + cep + this.viaCepFormat;
            ViaCEPAddressDTO viaCEPAddressDTO = this.restTemplate.getForObject(viaCepUri, ViaCEPAddressDTO.class);
 
-           if (viaCEPAddressDTO == null || viaCEPAddressDTO.getCep() == null) throw new NotFoundException("CEP não encontrado");
+           // IF CEP NOT FOUND, RETRY WITH NEW FORMAT
+           if (viaCEPAddressDTO == null || viaCEPAddressDTO.getCep() == null) return this.findAddressWithWebService(getNewRetryCEP(cep));
 
            Address address = this.viaCEPAddressDTOToAddress.convert(viaCEPAddressDTO);
            //save if not exists or update registry
@@ -88,9 +117,8 @@ public class AddressServiceImpl implements AddressService {
            return addressDTO;
        }catch (HttpStatusCodeException apiError) {
            if(apiError.getStatusCode() == HttpStatus.BAD_REQUEST && cep.length() < 8) {
-               String newCep = cep + "0";
-               log.info("[ADDRESS SERVICE][FIND BY CEP] TRYING SEARCH AGAIN WITH ONE MORE RIGHT ZERO {}", newCep);
-               return this.findByCEP(newCep);
+               // IF CEP NOT FOUND, RETRY WITH NEW FORMAT
+               return this.findAddressWithWebService(getNewRetryCEP(cep));
            }
            else throw new NotFoundException("CEP não encontrado");
        }
